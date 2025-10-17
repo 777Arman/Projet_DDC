@@ -8,7 +8,17 @@
 </head>
 <body>
     <h1>Aspelos</h1>
-    <label for="CV">Déposez votre CV ici (seulement pdf)</label><br>
-    <input type="file" id="CV" accept=".pdf"/>
+    <section id="p_accroche">Meilleure agence de développement web au monde</section>
+    <div class="depot">
+        <label for="CV" class="depot_sub">Déposez votre CV ici (seulement pdf)</label><br>
+        <input type="file" id="CV" accept=".pdf"/><br><br>
+
+        <label for="motiv" ckass="depot_sub">Déposez votre lettre de motivation ici (seulement pdf)</label><br>
+        <input type="file" id="motiv" accept=".pdf"/><br><br>
+
+        <button id="b_envoie">Envoyer</button>
+    </div>
+
+    <script src="/script.js"></script>
 </body>
 </html>
