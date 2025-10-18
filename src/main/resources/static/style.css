@@ -29,8 +29,17 @@ input[type="file"] {
     cursor: pointer;
 }
 
+
 input[type="file"]:hover {
     color: #f5c542;
+}
+
+label[for="partage"] {
+    cursor: pointer;
+}
+
+label[for="stockage"] {
+    cursor: pointer;
 }
 
 button {
