@@ -15,11 +15,11 @@ public class PremierControleur {
     @Inject
     private CandidatureRep candRepo;
 
-    @GetMapping("/")
+    @GetMapping("/AcceuilRH")
     public String hello(Model model) {
         model.addAttribute("name", "Amine");
         model.addAttribute("liste_Candidats", candRepo.findAll());
-        return "index";    
+        return "AcceuilRH";    
     }
 
     @PostMapping("/ChangementEtatCandidature")
@@ -30,7 +30,7 @@ public class PremierControleur {
                 break;
             }
         }
-        return "redirect:/";
+        return "redirect:/AcceuilRH";
     }
     
 
