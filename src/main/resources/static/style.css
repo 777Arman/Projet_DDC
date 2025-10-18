@@ -1,16 +1,19 @@
 body {
-    background-color: #ffffff;
+    background-color: #121212;
     font-family: Arial;
     margin: 40px;
+    color: #e6e6e6;
 }
 
 h1 {
-    color: #2a7ae2;
+    color: #f5c542;
     text-align: center;
+    font-size: 36px;
+    text-shadow: 0 0 8px rgba(245, 197, 66, 0.3)
 }
 
 #p_accroche{
-    color: #202ef8;
+    color: #b5b5b5;
     text-align: center;
     font-weight: bold;
     font-size: 18px;
@@ -18,6 +21,7 @@ h1 {
 
 .depot{
     margin-top: 50px;
+    text-align: center;
 }
 
 input[type="file"] {
@@ -26,12 +30,12 @@ input[type="file"] {
 }
 
 input[type="file"]:hover {
-    color:rgb(55, 87, 156);
+    color: #f5c542;
 }
 
 button {
-    background-color: #121212;
-    color: white;
+    background-color: #1f1f1f;
+    color: #f5c542;
     border: none;
     padding: 10px 25px;
     border-radius: 5px;
@@ -40,5 +44,5 @@ button {
 }
 
 button:hover {
-    background-color: #3d3d3d;
+    background-color: #2a2a2a;
 }
