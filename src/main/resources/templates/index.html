@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Notice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #eafdf5;
+    }
+
+    .main-content {
+      padding: 20px;
+    }
+    header {
+      background-color: rgb(146, 173, 175);
+      color: black;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .cand_container {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    #traitement {
+      background-color: #f0ad4e;
+      color: white;
+    }
+    #valide {
+      background-color: #5cb85c;
+      color: white;
+    }
+    #refuse {
+      background-color: #d9534f;
+      color: white;
+    }
+
+    form {
+      display: inline;
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    Ressources Humaines
+  </header>
+
+  <div class="main-content">
+    <h1 th:text="'Bonjour ' + ${name}"></h1th:text></h1>
+    <h2>Nouvelles Candidatures</h2>
+      <ul>
+        <li th:each="c : ${liste_Candidats}"
+        th:if="${c.etat} == -1"
+        class="cand_container">
+          Nom : <span th:text="${c.nom}"></span> <br> 
+          Prénom : <span th:text="${c.prenom}"></span> <br> 
+          Poste : <span th:text="${c.poste}"></span> <br> 
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="0" />
+              <button id="traitement">À traiter</button>
+            </form>
+
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="1" />
+              <button id="valide">Valider</button>
+            </form>
+            
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="2" />
+              <button id="refuse">Refuser</button>
+            </form>
+        </li>
+      </ul>
+    <h2>En cours de traitement ...</h2>
+      <ul>
+        <li th:each="c : ${liste_Candidats}"
+        th:if="${c.etat} == 0"
+        class="cand_container">
+          Nom : <span th:text="${c.nom}"></span><br> 
+          Prénom : <span th:text="${c.prenom}"></span><br>  
+          Poste : <span th:text="${c.poste}"></span><br>
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="1" />
+              <button id="valide">Valider</button>
+            </form>
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="2" />
+              <button id="refuse">Refuser</button>
+            </form>
+            
+        </li>
+      </ul>
+    <h2>Candidatures acceptées</h2>
+      <ul>
+        <li th:each="c : ${liste_Candidats}"
+        th:if="${c.etat} == 1"
+        class="cand_container">
+          Nom : <span th:text="${c.nom}+''"></span> <br>
+          Prénom : <span th:text="${c.prenom}"></span> <br> 
+          Poste : <span th:text="${c.poste}"></span> <br>
+          <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="0" />
+              <button id="traitement">À retraiter</button>
+            </form>
+        </li>
+      </ul>
+    <h2>Candidatures refusées</h2>
+      <ul>
+        <li th:each="c : ${liste_Candidats}"
+        th:if="${c.etat} == 2"
+        class="cand_container">
+          Nom : <span th:text="${c.nom}"></span> <br> 
+          Prénom : <span th:text="${c.prenom}"></span> <br> 
+          Poste : <span th:text="${c.poste}"></span> <br> 
+          <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="0" />
+              <button id="traitement">À traiter</button>
+            </form>
+        </li>
+      </ul>
+  </div>
+
+
+  
+</body>
+</html>
