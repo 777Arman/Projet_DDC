@@ -11,28 +11,30 @@
     <h1>Aspelos</h1>
     <section id="p_accroche">Meilleure agence de développement web au monde</section>
     <div class="depot">
-        <label for="selection_poste" class="select_poste">Veuillez choisir le poste pour lequel vous voulez postuler :</label><br>
-        <select name="postes" id="selection_poste">
-            <option value="">-Veuillez choisir un poste</option>
-            <option value="Developpeur web">Developpeur Web</option>
-            <option value="Data Analyst">Data Analyst</option>
-            <option value="Data Science">Data Science</option>
-            <option value="Developpeur IOT">Developpeur IOT</option>
-            <option value="Cybersecurite">Cybersecurite</option>
-        </select><br><br>
-
-        <label for="CV" class="depot_sub">Déposez votre CV ici (seulement pdf)</label><br>
-        <input type="file" id="CV" accept=".pdf"/><br><br>
-
-        <label for="motiv" ckass="depot_sub">Déposez votre lettre de motivation ici (seulement pdf)</label><br>
-        <input type="file" id="motiv" accept=".pdf"/><br><br>
-
-        <input type="checkbox" id="stockage"><label for="stockage">Vous acceptez que l'entreprise stocke vos données</label><br>
-        <input type="checkbox" id="partage"><label for="partage">Vous acceptez que l'entreprise stocke vos données et les partage avec d'autres entreprises</label>
-        <br><br>
-
-
-        <button id="b_envoie">Envoyer</button>
+        <form id="formulaire" action="/upload" method="post" enctype="multipart/form-data">   
+            <label for="selection_poste" class="select_poste">Veuillez choisir le poste pour lequel vous voulez postuler :</label><br>
+            <select id="selection_poste" name="poste" required>
+                <option value="">-Veuillez choisir un poste</option>
+                <option value="Developpeur web">Developpeur Web</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Developpeur IOT">Developpeur IOT</option>
+                <option value="Cybersecurite">Cybersecurite</option>
+            </select><br><br>
+            
+            <label for="CV" class="depot_sub">Déposez votre CV ici (seulement pdf)</label><br>
+            <input type="file" id="CV" name="cv" accept=".pdf" required/><br><br>
+            
+            <label for="motiv" ckass="depot_sub">Déposez votre lettre de motivation ici (seulement pdf)</label><br>
+            <input type="file" id="motiv" name="lm" accept=".pdf" required/><br><br>
+            
+            <input type="checkbox" id="stockage" name="stockage"><label for="stockage">Vous acceptez que l'entreprise stocke vos données</label><br>
+            <input type="checkbox" id="partage" name="partage"><label for="partage">Vous acceptez que l'entreprise stocke vos données et les partage avec d'autres entreprises</label>
+            <br><br>
+            
+            
+            <button id="b_envoie" type="button">Envoyer</button>
+        </form>
     </div>
 
     <script src="/script.js"></script>
