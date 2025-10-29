@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,9 +20,17 @@ public class UploadController {
 
     @Autowired
     private CandidatureRepository candidatureRepository;
+    
+    @Autowired
+    private CVDataRepository cvDataRepository;
+    
+    @Autowired
+    private HybridCVService hybridCVService;
 
     @Value("${file.upload-dir:uploads}")
     private String uploadDir;
+    
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/upload")
     @ResponseBody
@@ -36,16 +46,68 @@ public class UploadController {
             System.out.println("Poste : " + poste);
             System.out.println("Stockage : " + stockage + ", Partage : " + partage);
 
-            // Créer l'objet Candidature
+            // ÉTAPE 1 : Extraire le texte du CV PDF
+            String cvText = "";
+            try {
+                System.out.println("📄 Extraction du texte du CV...");
+                cvText = PDFReader.extractText(cv.getBytes());
+                System.out.println("✅ Texte extrait : " + cvText.length() + " caractères");
+            } catch (Exception e) {
+                System.err.println("⚠️ Erreur extraction PDF : " + e.getMessage());
+                cvText = ""; // Continuer même si l'extraction échoue
+            }
+
+            // ÉTAPE 2 : Extraire les données structurées du CV (Regex + LLM optionnel)
+            String extractedJson = "";
+            String nomCandidat = "NomTest";
+            String prenomCandidat = "PrenomTest";
+            String emailCandidat = "";
+            String telephoneCandidat = "";
+            String posteViseCandidat = "";
+            
+            if (!cvText.isEmpty()) {
+                try {
+                    System.out.println("🤖 Extraction des données du CV...");
+                    extractedJson = hybridCVService.extractCV(cvText);
+                    System.out.println("✅ Données extraites avec succès");
+                    
+                    // Parser le JSON pour extraire les infos principales
+                    JsonNode jsonNode = objectMapper.readTree(extractedJson);
+                    
+                    if (jsonNode.has("nom") && !jsonNode.get("nom").asText().isEmpty()) {
+                        nomCandidat = jsonNode.get("nom").asText();
+                    }
+                    if (jsonNode.has("prenom") && !jsonNode.get("prenom").asText().isEmpty()) {
+                        prenomCandidat = jsonNode.get("prenom").asText();
+                    }
+                    if (jsonNode.has("mail")) {
+                        emailCandidat = jsonNode.get("mail").asText();
+                    }
+                    if (jsonNode.has("telephone")) {
+                        telephoneCandidat = jsonNode.get("telephone").asText();
+                    }
+                    if (jsonNode.has("posteVise")) {
+                        posteViseCandidat = jsonNode.get("posteVise").asText();
+                    }
+                    
+                    System.out.println(" Candidat identifié : " + prenomCandidat + " " + nomCandidat);
+                    
+                } catch (Exception e) {
+                    System.err.println("⚠️ Erreur extraction données : " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            // ÉTAPE 3 : Créer l'objet Candidature
             Candidature candidature = new Candidature();
-            candidature.setNom("NomTest");
-            candidature.setPrenom("PrenomTest");
+            candidature.setNom(nomCandidat);
+            candidature.setPrenom(prenomCandidat);
             candidature.setPoste(poste);
-            candidature.setEtat(0);
+            candidature.setEtat(-1); // -1 = nouvelle candidature
             candidature.setStockage(stockage);
             candidature.setPartage(partage);
 
-            // Sauvegarder les fichiers sur le disque (optionnel)
+            // ÉTAPE 4 : Sauvegarder les fichiers sur le disque (optionnel)
             Path dirPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             Files.createDirectories(dirPath);
             
@@ -58,7 +120,7 @@ public class UploadController {
             Files.copy(cv.getInputStream(), cvPath, StandardCopyOption.REPLACE_EXISTING);
             Files.copy(lm.getInputStream(), lmPath, StandardCopyOption.REPLACE_EXISTING);
 
-            // Sauvegarder les bytes dans la BDD
+            // ÉTAPE 5 : Sauvegarder les bytes dans la BDD
             if (cv != null && !cv.isEmpty()) {
                 candidature.setCv(cv.getBytes());
             }
@@ -67,13 +129,38 @@ public class UploadController {
                 candidature.setLm(lm.getBytes());
             }
 
-            // Sauvegarder en BDD
-            candidatureRepository.save(candidature);
-
-            System.out.println("Candidature enregistrée avec succès en BDD !");
+            // ÉTAPE 6 : Sauvegarder la candidature en BDD
+            candidature = candidatureRepository.save(candidature);
+            System.out.println("Candidature enregistrée avec ID : " + candidature.getId());
             
-            return "Candidature enregistrée ! Poste : " + poste + 
-                   " | Fichiers sauvegardés : " + cvName + ", " + lmName;
+            // ÉTAPE 7 : Sauvegarder les données extraites du CV dans CVData
+            if (!cvText.isEmpty() || !extractedJson.isEmpty()) {
+                try {
+                    CVData cvData = new CVData();
+                    cvData.setCandidature(candidature);
+                    cvData.setCvTextContent(cvText);
+                    cvData.setExtractedDataJson(extractedJson);
+                    cvData.setNom(nomCandidat);
+                    cvData.setPrenom(prenomCandidat);
+                    cvData.setEmail(emailCandidat);
+                    cvData.setTelephone(telephoneCandidat);
+                    cvData.setPosteVise(posteViseCandidat);
+                    
+                    cvDataRepository.save(cvData);
+                    System.out.println(" Données CV enregistrées en BDD !");
+                } catch (Exception e) {
+                    System.err.println("Erreur sauvegarde CVData : " + e.getMessage());
+                }
+            }
+            
+            System.out.println("=== Traitement terminé avec succès ===");
+            
+            return "Candidature enregistrée avec succès !\n" +
+                   "Candidat : " + prenomCandidat + " " + nomCandidat + "\n" +
+                   "Poste : " + poste + "\n" +
+                   "Email : " + emailCandidat + "\n" +
+                   "Téléphone : " + telephoneCandidat + "\n" +
+                   "Fichiers sauvegardés : " + cvName + ", " + lmName;
 
         } catch (Exception e) {
             e.printStackTrace();
