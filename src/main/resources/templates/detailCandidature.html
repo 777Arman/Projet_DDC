@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détail Candidature</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #eafdf5;
+    }
+
+    header {
+      background-color: rgb(146, 173, 175);
+      color: black;
+      padding: 15px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-btn {
+      background-color: white;
+      color: black;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-btn:hover {
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .section {
+      background-color: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: rgb(146, 173, 175);
+      border-bottom: 2px solid rgb(146, 173, 175);
+      padding-bottom: 10px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .info-value {
+      color: #333;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-new {
+      background-color: #ffc107;
+      color: white;
+    }
+
+    .badge-progress {
+      background-color: #f0ad4e;
+      color: white;
+    }
+
+    .badge-accepted {
+      background-color: #5cb85c;
+      color: white;
+    }
+
+    .badge-rejected {
+      background-color: #d9534f;
+      color: white;
+    }
+
+    .list-section {
+      margin-top: 10px;
+    }
+
+    .list-item {
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 3px solid rgb(146, 173, 175);
+      border-radius: 3px;
+    }
+
+    .no-data {
+      color: #999;
+      font-style: italic;
+    }
+
+    .download-btn {
+      background-color: rgb(146, 173, 175);
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .download-btn:hover {
+      opacity: 0.8;
+    }
+
+    .competence-tag {
+      background-color: rgb(146, 173, 175);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      display: inline-block;
+      margin: 5px 5px 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <span>Détail de la Candidature</span>
+    <a href="/AcceuilRH" class="back-btn">Retour</a>
+  </header>
+
+  <div class="container">
+    <!-- Informations principales -->
+    <div class="section">
+      <h2>Informations Générales</h2>
+      <div class="info-grid">
+        <div class="info-label">Nom :</div>
+        <div class="info-value" th:text="${candidature.nom}">DUPONT</div>
+
+        <div class="info-label">Prénom :</div>
+        <div class="info-value" th:text="${candidature.prenom}">Jean</div>
+
+        <div class="info-label">Poste visé :</div>
+        <div class="info-value" th:text="${candidature.poste}">Développeur Full Stack</div>
+
+        <div class="info-label">État :</div>
+        <div class="info-value">
+          <span th:if="${candidature.etat == -1}" class="badge badge-new">Nouvelle</span>
+          <span th:if="${candidature.etat == 0}" class="badge badge-progress">En traitement</span>
+          <span th:if="${candidature.etat == 1}" class="badge badge-accepted">Acceptée</span>
+          <span th:if="${candidature.etat == 2}" class="badge badge-rejected">Refusée</span>
+        </div>
+
+        <div class="info-label">Stockage autorisé :</div>
+        <div class="info-value" th:text="${candidature.stockage ? 'Oui' : 'Non'}">Oui</div>
+
+        <div class="info-label">Partage autorisé :</div>
+        <div class="info-value" th:text="${candidature.partage ? 'Oui' : 'Non'}">Non</div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <a href="#" class="download-btn">Télécharger CV</a>
+        <a href="#" class="download-btn">Télécharger LM</a>
+      </div>
+    </div>
+
+    <!-- Données extraites du CV -->
+    <div class="section" th:if="${cvData != null}">
+      <h2>Données Extraites du CV</h2>
+      
+      <div class="info-grid">
+        <div class="info-label">Email :</div>
+        <div class="info-value" th:text="${cvData.email != null && !cvData.email.isEmpty() ? cvData.email : 'Non renseigné'}">email@example.com</div>
+
+        <div class="info-label">Téléphone :</div>
+        <div class="info-value" th:text="${cvData.telephone != null && !cvData.telephone.isEmpty() ? cvData.telephone : 'Non renseigné'}">06 12 34 56 78</div>
+
+        <div class="info-label">Poste visé (CV) :</div>
+        <div class="info-value" th:text="${cvData.posteVise != null && !cvData.posteVise.isEmpty() ? cvData.posteVise : 'Non renseigné'}">Développeur</div>
+
+        <div class="info-label">Permis :</div>
+        <div class="info-value" th:text="${permis}">Permis B</div>
+      </div>
+
+      <!-- Diplômes -->
+      <div class="list-section">
+        <h3>Diplômes</h3>
+        <div th:if="${diplomes != null && !diplomes.isEmpty()}">
+          <div class="list-item" th:each="diplome : ${diplomes}">
+            <strong th:text="${diplome.nomDiplome}">Master Informatique</strong>
+            <span th:text="' - ' + ${diplome.anneeObtention}"> - 2023</span>
+          </div>
+        </div>
+        <div th:if="${diplomes == null || diplomes.isEmpty()}" class="no-data">
+          Aucun diplôme extrait
+        </div>
+      </div>
+
+      <!-- Expériences -->
+      <div class="list-section">
+        <h3>Expériences Professionnelles</h3>
+        <div th:if="${experiences != null && !experiences.isEmpty()}">
+          <div class="list-item" th:each="exp : ${experiences}">
+            <strong th:text="${exp.posteOccupe}">Développeur</strong><br>
+            <span th:text="${exp.nomEntreprise}">Entreprise ABC</span><br>
+            <span th:text="${exp.dureeExperience}" style="color: #666;">2020 - 2023</span>
+          </div>
+        </div>
+        <div th:if="${experiences == null || experiences.isEmpty()}" class="no-data">
+          Aucune expérience extraite
+        </div>
+      </div>
+
+      <!-- Compétences -->
+      <div class="list-section">
+        <h3>Compétences</h3>
+        <div th:if="${competences != null && !competences.isEmpty()}">
+          <div style="margin-top: 10px;">
+            <span th:each="comp : ${competences}" 
+                  th:text="${comp}"
+                  class="competence-tag">
+              Java
+            </span>
+          </div>
+        </div>
+        <div th:if="${competences == null || competences.isEmpty()}" class="no-data">
+          Aucune compétence extraite
+        </div>
+      </div>
+    </div>
+
+    <!-- Message si pas de données extraites -->
+    <div class="section" th:if="${cvData == null}">
+      <h2>Aucune donnée extraite</h2>
+      <p class="no-data">Les données du CV n'ont pas encore été extraites ou une erreur s'est produite lors de l'extraction.</p>
+    </div>
+  </div>
+</body>
+</html>

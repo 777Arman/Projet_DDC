@@ -55,6 +55,26 @@
       display: inline;
     }
 
+     .detail-link {
+      background-color: #5bc0de;
+      color: white;
+      padding: 5px 10px;
+      text-decoration: none;
+      border-radius: 3px;
+      display: inline-block;
+      margin-right: 5px;
+      font-size: 14px;
+    }
+
+    .detail-link:hover {
+      background-color: #46b8da;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -71,7 +91,9 @@
         class="cand_container">
           Nom : <span th:text="${c.nom}"></span> <br> 
           Prénom : <span th:text="${c.prenom}"></span> <br> 
-          Poste : <span th:text="${c.poste}"></span> <br> 
+          Poste : <span th:text="${c.poste}"></span> <br>
+
+          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a> 
             <form th:action="@{/ChangementEtatCandidature}" method="post">
               <input type="hidden" name="id" th:value="${c.id}" />
               <input type="hidden" name="etatVoulu" value="0" />
@@ -99,6 +121,7 @@
           Nom : <span th:text="${c.nom}"></span><br> 
           Prénom : <span th:text="${c.prenom}"></span><br>  
           Poste : <span th:text="${c.poste}"></span><br>
+          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
             <form th:action="@{/ChangementEtatCandidature}" method="post">
               <input type="hidden" name="id" th:value="${c.id}" />
               <input type="hidden" name="etatVoulu" value="1" />
@@ -120,6 +143,7 @@
           Nom : <span th:text="${c.nom}+''"></span> <br>
           Prénom : <span th:text="${c.prenom}"></span> <br> 
           Poste : <span th:text="${c.poste}"></span> <br>
+          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
           <form th:action="@{/ChangementEtatCandidature}" method="post">
               <input type="hidden" name="id" th:value="${c.id}" />
               <input type="hidden" name="etatVoulu" value="0" />
@@ -135,6 +159,7 @@
           Nom : <span th:text="${c.nom}"></span> <br> 
           Prénom : <span th:text="${c.prenom}"></span> <br> 
           Poste : <span th:text="${c.poste}"></span> <br> 
+          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
           <form th:action="@{/ChangementEtatCandidature}" method="post">
               <input type="hidden" name="id" th:value="${c.id}" />
               <input type="hidden" name="etatVoulu" value="0" />
