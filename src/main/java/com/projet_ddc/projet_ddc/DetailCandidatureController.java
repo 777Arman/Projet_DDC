@@ -5,6 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -101,6 +106,58 @@ public class DetailCandidatureController {
             e.printStackTrace();
             model.addAttribute("error", "Erreur lors du chargement des détails de la candidature");
             return "error";
+        }
+    }
+    
+    @GetMapping("/candidature/{id}/download/cv")
+    public ResponseEntity<Resource> downloadCV(@PathVariable Long id) {
+        try {
+            Candidature candidature = candidatureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Candidature introuvable"));
+            
+            byte[] cv = candidature.getCv();
+            if (cv == null || cv.length == 0) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            ByteArrayResource resource = new ByteArrayResource(cv);
+            
+            String filename = "CV_" + candidature.getPrenom() + "_" + candidature.getNom() + ".pdf";
+            
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
+                
+        } catch (Exception e) {
+            System.err.println("Erreur téléchargement CV: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
+    @GetMapping("/candidature/{id}/download/lm")
+    public ResponseEntity<Resource> downloadLM(@PathVariable Long id) {
+        try {
+            Candidature candidature = candidatureRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Candidature introuvable"));
+            
+            byte[] lm = candidature.getLm();
+            if (lm == null || lm.length == 0) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            ByteArrayResource resource = new ByteArrayResource(lm);
+            
+            String filename = "LM_" + candidature.getPrenom() + "_" + candidature.getNom() + ".pdf";
+            
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(resource);
+                
+        } catch (Exception e) {
+            System.err.println("Erreur téléchargement LM: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
     

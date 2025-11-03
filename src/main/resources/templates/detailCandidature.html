@@ -184,8 +184,8 @@
       </div>
 
       <div style="margin-top: 20px;">
-        <a href="#" class="download-btn">Télécharger CV</a>
-        <a href="#" class="download-btn">Télécharger LM</a>
+        <a th:href="@{/candidature/{id}/download/cv(id=${candidature.id})}" class="download-btn">Télécharger CV</a>
+        <a th:href="@{/candidature/{id}/download/lm(id=${candidature.id})}" class="download-btn">Télécharger LM</a>
       </div>
     </div>
 
