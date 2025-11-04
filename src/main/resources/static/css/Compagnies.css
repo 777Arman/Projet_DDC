@@ -1,0 +1,163 @@
+/* --- BODY --- */
+body {
+    background-color: #0b1220;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #f0f4ff;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- HEADER --- */
+.main-header {
+    background: linear-gradient(145deg, #101a2d, #0e1626);
+    border: 1px solid #1f2a3d;
+    border-radius: 14px;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+.header-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #dce6ff;
+}
+
+.header-nav a {
+    color: #c9d6ef;
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.header-nav a:hover,
+.header-nav a.active {
+    color: #3d7eff;
+}
+
+/* --- MAIN CONTENT --- */
+.main-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+h1 {
+    font-size: 26px;
+    color: #dce6ff;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 20px;
+    color: #f0f4ff;
+    margin-bottom: 16px;
+}
+
+/* --- CARDS --- */
+.card {
+    background: linear-gradient(145deg, #101a2d, #0e1626);
+    border: 1px solid #1f2a3d;
+    border-radius: 14px;
+    padding: 25px 30px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
+/* --- FORMULAIRE --- */
+.form-ajout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-ajout label {
+    color: #f0f4ff;
+    font-weight: 500;
+}
+
+.form-ajout input {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #1f2a3d;
+    background-color: #0b1220;
+    color: #f0f4ff;
+    font-size: 14px;
+}
+
+.form-ajout input::placeholder {
+    color: #9aa7c2;
+}
+
+.form-ajout input:focus {
+    outline: none;
+    border-color: #3d7eff;
+    box-shadow: 0 0 8px rgba(61,126,255,0.3);
+}
+
+/* --- BOUTON --- */
+.btn-traiter {
+    background: linear-gradient(90deg, #3d7eff, #2a62e0);
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-traiter:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(61,126,255,0.3);
+}
+
+/* --- LISTE DES COMPAGNIES --- */
+.liste-compagnies {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cand-card {
+    background: linear-gradient(145deg, #101a2d, #0e1626);
+    border: 1px solid #1f2a3d;
+    border-radius: 14px;
+    padding: 20px 25px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cand-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px rgba(61,126,255,0.2);
+}
+
+.no-data {
+    color: #9aa7c2;
+    font-style: italic;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .header-nav a {
+        margin-left: 0;
+        margin-right: 15px;
+    }
+
+    .form-ajout {
+        gap: 12px;
+    }
+}

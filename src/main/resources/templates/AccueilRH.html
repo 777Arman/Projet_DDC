@@ -1,174 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Notice</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #eafdf5;
-    }
-
-    .main-content {
-      padding: 20px;
-    }
-    header {
-      background-color: rgb(146, 173, 175);
-      color: black;
-      padding: 10px 0;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .cand_container {
-      background-color: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    button {
-      margin-right: 5px;
-      padding: 5px 10px;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-    #traitement {
-      background-color: #f0ad4e;
-      color: white;
-    }
-    #valide {
-      background-color: #5cb85c;
-      color: white;
-    }
-    #refuse {
-      background-color: #d9534f;
-      color: white;
-    }
-
-    form {
-      display: inline;
-    }
-
-     .detail-link {
-      background-color: #5bc0de;
-      color: white;
-      padding: 5px 10px;
-      text-decoration: none;
-      border-radius: 3px;
-      display: inline-block;
-      margin-right: 5px;
-      font-size: 14px;
-    }
-
-    .detail-link:hover {
-      background-color: #46b8da;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-  </style>
+  <title>Gestion des Candidatures - Aspelos</title>
+  <link rel="stylesheet" href="/css/AccueilRH.css">
 </head>
 <body>
-  <header>
-    Ressources Humaines
+  <header class="main-header">
+    <div class="header-title">Gestion des Candidatures</div>
+    <nav class="header-nav">
+        <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+        <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+        <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+        <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+        <a href="/Compagnies" class="nav-link active">Consortium</a>
+    </nav>
   </header>
 
   <div class="main-content">
-    <h2>Nouvelles Candidatures</h2>
-      <ul>
-        <li th:each="c : ${liste_Candidats}"
-        th:if="${c.etat} == -1"
-        class="cand_container">
-          Nom : <span th:text="${c.nom}"></span> <br> 
-          Prénom : <span th:text="${c.prenom}"></span> <br> 
-          Poste : <span th:text="${c.poste}"></span> <br>
+    
 
-          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a> 
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="0" />
-              <button id="traitement">À traiter</button>
-            </form>
+    <section class="cand-section">
+      <h2>Les Nouvelles Candidatures</h2>
+      
+      <ul>
+        <li th:each="c : ${liste_Candidats}" 
+            th:if="${c.etat} == -1" 
+            class="cand-container"
+            th:onclick="|window.location='@{/candidature/{id}(id=${c.id})}'|">
+          
+          <div class="cand-info">
+            <p><strong>Nom :</strong> <span th:text="${c.nom}"></span></p>
+            <p><strong>Prénom :</strong> <span th:text="${c.prenom}"></span></p>
+            <p><strong>Poste :</strong> <span th:text="${c.poste}"></span></p>
+          </div>
 
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="1" />
-              <button id="valide">Valider</button>
-            </form>
-            
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="2" />
-              <button id="refuse">Refuser</button>
-            </form>
+          <div class="cand-actions">
+            <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
+            <div class="btn-group">
+              <form th:action="@{/ChangementEtatCandidature}" method="post" onsubmit="event.stopPropagation();">
+                <input type="hidden" name="id" th:value="${c.id}" />
+                <input type="hidden" name="etatVoulu" value="0" />
+                <button class="btn traitement">À traiter</button>
+              </form>
+
+              <form th:action="@{/ChangementEtatCandidature}" method="post" onsubmit="event.stopPropagation();">
+                <input type="hidden" name="id" th:value="${c.id}" />
+                <input type="hidden" name="etatVoulu" value="1" />
+                <button class="btn valide">Valider</button>
+              </form>
+
+              <form th:action="@{/ChangementEtatCandidature}" method="post" onsubmit="event.stopPropagation();">
+                <input type="hidden" name="id" th:value="${c.id}" />
+                <input type="hidden" name="etatVoulu" value="2" />
+                <button class="btn refuse">Refuser</button>
+              </form>
+            </div>
+          </div>
         </li>
       </ul>
-    <h2>En cours de traitement ...</h2>
-      <ul>
-        <li th:each="c : ${liste_Candidats}"
-        th:if="${c.etat} == 0"
-        class="cand_container">
-          Nom : <span th:text="${c.nom}"></span><br> 
-          Prénom : <span th:text="${c.prenom}"></span><br>  
-          Poste : <span th:text="${c.poste}"></span><br>
-          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="1" />
-              <button id="valide">Valider</button>
-            </form>
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="2" />
-              <button id="refuse">Refuser</button>
-            </form>
-            
-        </li>
-      </ul>
-    <h2>Candidatures acceptées</h2>
-      <ul>
-        <li th:each="c : ${liste_Candidats}"
-        th:if="${c.etat} == 1"
-        class="cand_container">
-          Nom : <span th:text="${c.nom}+''"></span> <br>
-          Prénom : <span th:text="${c.prenom}"></span> <br> 
-          Poste : <span th:text="${c.poste}"></span> <br>
-          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
-          <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="0" />
-              <button id="traitement">À retraiter</button>
-            </form>
-        </li>
-      </ul>
-    <h2>Candidatures refusées</h2>
-      <ul>
-        <li th:each="c : ${liste_Candidats}"
-        th:if="${c.etat} == 2"
-        class="cand_container">
-          Nom : <span th:text="${c.nom}"></span> <br> 
-          Prénom : <span th:text="${c.prenom}"></span> <br> 
-          Poste : <span th:text="${c.poste}"></span> <br> 
-          <a th:href="@{/candidature/{id}(id=${c.id})}" class="detail-link">Voir détail</a>
-          <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="0" />
-              <button id="traitement">À traiter</button>
-            </form>
-        </li>
-      </ul>
+
+      <!-- Message si aucune candidature -->
+      <p th:if="${#lists.isEmpty(liste_Candidats.?[etat == -1])}">
+        Aucune nouvelle candidature pour le moment.
+      </p>
+    </section>
+
   </div>
-
-
-  
 </body>
 </html>

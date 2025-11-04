@@ -1,10 +1,12 @@
 package com.projet_ddc.projet_ddc;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Candidature {
@@ -25,6 +27,9 @@ public class Candidature {
 
     @Lob
     private byte[] lm;
+
+    @OneToOne(mappedBy = "candidature", cascade = CascadeType.ALL, orphanRemoval = true)
+    private CVData cvData;
 
     public Candidature() { /* A ne pas oublier sinon ça va pas marcher*/
     }

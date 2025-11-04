@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ressources Humaines</title>
+  <link rel="stylesheet" href="/css/stockage.css">
+</head>
+<body>
+  <header class="main-header">
+        <div class="header-title">Stockage de candidatures</div>
+        <nav class="header-nav">
+           <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+            <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+            <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+            <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+            <a href="/Compagnies" class="nav-link active">Consortium</a>
+        </nav>
+    </header>
+
+  <main class="main-container">
+
+    <!-- Statistiques -->
+    <section class="card">
+      <h2>Statistiques</h2>
+      <div class="stats">
+        <p><strong>Total refusées :</strong> <span th:text="${totalRefusees}">0</span></p>
+        <p><strong>Avec stockage autorisé :</strong> <span th:text="${avecStockage}">0</span></p>
+        <p><strong>Avec partage autorisé :</strong> <span th:text="${avecPartage}">0</span></p>
+      </div>
+    </section>
+
+    <!-- Candidatures stockées -->
+    <section class="card">
+      <h2>Candidatures Refusées Stockées</h2>
+
+      <div th:if="${candidaturesStockees.isEmpty()}" class="no-data">
+        Aucune candidature refusée avec stockage autorisé.
+      </div>
+
+      <ul th:if="${!candidaturesStockees.isEmpty()}">
+        <li th:each="c : ${candidaturesStockees}" class="cand-card">
+          <div class="cand-header">
+            <h3 th:text="${c.nom + ' ' + c.prenom}">Nom Prénom</h3>
+            <span class="tag tag-stockage">Stockage autorisé</span>
+            <span th:if="${c.partage}" class="tag tag-partage">Partage autorisé</span>
+            <span th:unless="${c.partage}" class="tag tag-warning">Partage non autorisé</span>
+          </div>
+
+          <p><strong>Poste :</strong> <span th:text="${c.poste}">Développeur</span></p>
+
+          <div class="actions">
+            <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Voir détail</a>
+
+            <form th:action="@{/ChangementEtatCandidature}" method="post">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <input type="hidden" name="etatVoulu" value="0" />
+              <button class="btn btn-traiter">Retraiter</button>
+            </form>
+
+            <form th:action="@{/Stockage/supprimerCandidature}" method="post"
+                  onsubmit="return confirm('Supprimer définitivement cette candidature ?');">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <button class="btn btn-supprimer">Supprimer</button>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Candidatures sans stockage -->
+    <section class="card warning">
+      <h2> Candidatures sans Stockage Autorisé</h2>
+      <p class="alert">
+        Ces candidatures doivent être supprimées conformément au RGPD.
+      </p>
+
+      <div th:if="${candidaturesSansStockage.isEmpty()}" class="no-data">
+         Aucune candidature non conforme.
+      </div>
+
+      <ul th:if="${!candidaturesSansStockage.isEmpty()}">
+        <li th:each="c : ${candidaturesSansStockage}" class="cand-card danger">
+          <h3 th:text="${c.nom + ' ' + c.prenom}">Nom Prénom</h3>
+          <p><strong>Poste :</strong> <span th:text="${c.poste}">Développeur</span></p>
+          <span class="tag tag-danger">Stockage non autorisé</span>
+
+          <div class="actions">
+            <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Voir détail</a>
+
+            <form th:action="@{/Stockage/supprimerCandidature}" method="post"
+                  onsubmit="return confirm('Supprimer cette candidature (pas de consentement) ?');">
+              <input type="hidden" name="id" th:value="${c.id}" />
+              <button class="btn btn-supprimer">Supprimer</button>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>

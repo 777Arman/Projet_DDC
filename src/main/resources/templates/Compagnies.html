@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Compagnies</title>
+    <link rel="stylesheet" href="/css/Compagnies.css">
+</head>
+<body>
+
+<header class="main-header">
+    <div class="header-title">Gestion des Compagnies</div>
+    <nav class="header-nav">
+        <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+        <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+        <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+        <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+        <a href="/Compagnies" class="nav-link active">Consortium</a>
+    </nav>
+</header>
+
+<div class="main-content">
+    <h1>Les Entreprises du Consortium</h1>
+
+    <div class="card">
+        <h2>Ajouter une nouvelle compagnie</h2>
+        <form th:action="@{/Compagnies/Ajouter}" method="post" class="form-ajout">
+            <label for="nom">Nom de la compagnie :</label>
+            <input type="text" id="nom" name="nom" required>
+
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
+
+            <button type="submit" class="btn btn-traiter">Ajouter</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Liste des compagnies</h2>
+
+        <div th:if="${compagnies.isEmpty()}" class="no-data">
+            Aucune compagnie pour le moment.
+        </div>
+
+        <ul th:if="${!compagnies.isEmpty()}" class="liste-compagnies">
+            <li th:each="c : ${compagnies}" class="cand-card">
+                <strong>Nom :</strong> <span th:text="${c.nom}"></span> <br>
+                <strong>Email :</strong> <span th:text="${c.email}"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

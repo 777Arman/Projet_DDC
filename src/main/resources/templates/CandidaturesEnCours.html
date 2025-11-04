@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidatures en traitement</title>
+    <link rel="stylesheet" href="/css/CandidaturesEnCours.css">
+</head>
+<body>
+
+    <!-- HEADER GLOBAL -->
+    <header class="main-header">
+        <div class="header-title">Gestion des Candidatures</div>
+        <nav class="header-nav">
+            <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+            <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+            <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+            <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+            <a href="/Compagnies" class="nav-link active">Consortium</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+
+        <h2>Candidatures en cours de traitement</h2>
+
+        <div class="card">
+            <div class="alert">
+                <strong>Total candidatures en traitement :</strong>
+                <span th:text="${totalEnCours}">0</span>
+            </div>
+        </div>
+
+        <!-- Vérifier s'il y a des candidatures -->
+        <div th:if="${candidaturesEnCours.isEmpty()}" class="no-data">
+            ✅ Aucune candidature en traitement pour le moment.
+        </div>
+
+        <!-- Liste des candidatures -->
+        <div th:if="${!candidaturesEnCours.isEmpty()}">
+            <div th:each="c : ${candidaturesEnCours}" class="cand-card">
+
+                <div class="cand-header">
+                    <h3 th:text="${c.nom} + ' ' + ${c.prenom}">Nom Prénom</h3>
+                    <span class="tag" th:text="${c.poste}">Poste</span>
+                </div>
+
+                <div class="actions">
+                    <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Voir détail</a>
+
+                    <form th:action="@{/CandidaturesEnCours/ChangementEtat}" method="post" style="display: inline;">
+                        <input type="hidden" name="id" th:value="${c.id}" />
+                        <input type="hidden" name="etatVoulu" value="1" />
+                        <button type="submit" class="btn btn-traiter">Accepter</button>
+                    </form>
+
+                    <form th:action="@{/CandidaturesEnCours/ChangementEtat}" method="post" style="display: inline;">
+                        <input type="hidden" name="id" th:value="${c.id}" />
+                        <input type="hidden" name="etatVoulu" value="2" />
+                        <button type="submit" class="btn btn-supprimer">Refuser</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

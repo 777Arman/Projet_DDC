@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aspelos</title> 
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <a href="/connexion">Connectez-vous</a>
@@ -20,6 +20,7 @@
                 <option value="Data Science">Data Science</option>
                 <option value="Developpeur IOT">Developpeur IOT</option>
                 <option value="Cybersecurite">Cybersecurite</option>
+                <option value="Candidature Spontanée">Candidature Spontanée</option>
             </select><br><br>
             
             <label for="CV" class="depot_sub">Déposez votre CV ici (seulement pdf)</label><br>
@@ -28,9 +29,17 @@
             <label for="motiv" class="depot_sub">Déposez votre lettre de motivation ici (seulement pdf)</label><br>
             <input type="file" id="motiv" name="lm" accept=".pdf" required/><br><br>
             
-            <input type="checkbox" id="stockage" name="stockage"><label for="stockage">Vous acceptez que l'entreprise stocke vos données</label><br>
-            <input type="checkbox" id="partage" name="partage"><label for="partage">Vous acceptez que l'entreprise stocke vos données et les partage avec d'autres entreprises</label>
-            <br><br>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="stockage" name="stockage">
+                <label for="stockage">Vous acceptez que l'entreprise stocke vos données</label>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="partage" name="partage">
+                <label for="partage">Vous acceptez que l'entreprise stocke vos données et les partage avec d'autres entreprises</label>
+            </div>
+
             
             
             <button id="b_envoie" type="submit">Envoyer</button>
