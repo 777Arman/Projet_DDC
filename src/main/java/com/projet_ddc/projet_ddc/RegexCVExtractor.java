@@ -11,6 +11,9 @@ public class RegexCVExtractor {
     public Map<String, Object> extractCVData(String cvText) {
         Map<String, Object> data = new HashMap<>();
         
+        // Nettoyage du texte pour une meilleure extraction
+        String cleanedText = cvText.replaceAll("\\s+", " ").trim();
+        
         data.put("idCandidat", UUID.randomUUID().toString());
         data.put("nom", extractNom(cvText));
         data.put("prenom", extractPrenom(cvText));
@@ -27,14 +30,15 @@ public class RegexCVExtractor {
     }
 
     private String extractEmail(String text) {
-        Pattern pattern = Pattern.compile("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}");
+        // Pattern plus robuste pour les emails
+        Pattern pattern = Pattern.compile("[a-zA-Z0-9][a-zA-Z0-9._+-]*@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}");
         Matcher matcher = pattern.matcher(text);
-        return matcher.find() ? matcher.group() : "";
+        return matcher.find() ? matcher.group().trim() : "";
     }
 
     private String extractPhone(String text) {
-        // Formats: 06 12 34 56 78, 06.12.34.56.78, +33 6 12 34 56 78, 0612345678
-        Pattern pattern = Pattern.compile("(?:\\+33|0)[1-9](?:[\\s.-]?\\d{2}){4}");
+        // Formats variés: +33 7 69 81 57 43, 06 12 34 56 78, 0612345678
+        Pattern pattern = Pattern.compile("(?:\\+33|0)\\s*[1-9](?:[\\s.-]?\\d{2}){4}");
         Matcher matcher = pattern.matcher(text);
         if (matcher.find()) {
             return matcher.group().replaceAll("[.-]", " ").trim();
@@ -43,104 +47,146 @@ public class RegexCVExtractor {
     }
 
     private String extractNom(String text) {
-        // Chercher ligne avec nom (souvent en MAJUSCULES dans les 10 premières lignes)
         String[] lines = text.split("\\n");
-        for (int i = 0; i < Math.min(10, lines.length); i++) {
+        
+        // Stratégie 1: Chercher deux lignes consécutives en MAJUSCULES (format CV moderne)
+        for (int i = 0; i < Math.min(15, lines.length - 1); i++) {
+            String line1 = lines[i].trim();
+            String line2 = lines[i + 1].trim();
+            
+            // Nettoyer line2 si elle contient un numéro de téléphone collé
+            String line2Clean = line2.replaceAll("\\+?\\d[\\d\\s]{8,}", "").trim();
+            
+            // Ignorer les lignes avec email
+            if (line1.contains("@") || line2.contains("@")) continue;
+            
+            // Si ligne1 est en MAJUSCULES
+            if (line1.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{2,30}$")) {
+                // Si ligne2 (nettoyée) est aussi en MAJUSCULES
+                if (!line2Clean.isEmpty() && line2Clean.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{2,30}$")) {
+                    // Ligne 2 = NOM (convention CV moderne)
+                    return line2Clean;
+                }
+            }
+        }
+        
+        // Stratégie 2: Chercher une seule ligne avec prénom + nom
+        for (int i = 0; i < Math.min(15, lines.length); i++) {
             String line = lines[i].trim();
             
+            // Ignorer les lignes problématiques
+            if (line.contains("@") || line.matches(".*\\+?\\d{2}.*\\d{2}.*\\d{2}.*")) continue;
+            
             // Ligne tout en majuscules avec 2+ mots (ex: JEAN DUPONT)
-            if (line.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{3,50}$") && line.split("\\s+").length >= 2) {
+            if (line.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{3,50}$") && 
+                line.split("\\s+").length >= 2) {
                 String[] parts = line.split("\\s+");
                 // Le dernier mot est généralement le nom
                 return parts[parts.length - 1];
             }
         }
+        
         return "";
     }
 
     private String extractPrenom(String text) {
         String[] lines = text.split("\\n");
-        for (int i = 0; i < Math.min(10, lines.length); i++) {
+        
+        // Stratégie 1: Chercher deux lignes consécutives en MAJUSCULES (format CV moderne)
+        for (int i = 0; i < Math.min(15, lines.length - 1); i++) {
+            String line1 = lines[i].trim();
+            String line2 = lines[i + 1].trim();
+            
+            // Nettoyer line2 si elle contient un numéro de téléphone collé
+            String line2Clean = line2.replaceAll("\\+?\\d[\\d\\s]{8,}", "").trim();
+            
+            // Ignorer les lignes avec email
+            if (line1.contains("@") || line2.contains("@")) continue;
+            
+            // Si ligne1 est en MAJUSCULES
+            if (line1.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{2,30}$")) {
+                // Si ligne2 (nettoyée) est aussi en MAJUSCULES
+                if (!line2Clean.isEmpty() && line2Clean.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{2,30}$")) {
+                    // Ligne 1 = PRÉNOM (convention CV moderne)
+                    return line1;
+                }
+            }
+        }
+        
+        // Stratégie 2: Chercher une seule ligne avec prénom + nom
+        for (int i = 0; i < Math.min(15, lines.length); i++) {
             String line = lines[i].trim();
             
+            // Ignorer les lignes problématiques
+            if (line.contains("@") || line.matches(".*\\+?\\d{2}.*\\d{2}.*\\d{2}.*")) continue;
+            
             // Ligne tout en majuscules avec 2+ mots (ex: JEAN DUPONT)
-            if (line.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{3,50}$") && line.split("\\s+").length >= 2) {
+            if (line.matches("^[A-ZÀÂÄÆÇÉÈÊËÏÎÔŒÙÛÜ\\s'-]{3,50}$") && 
+                line.split("\\s+").length >= 2) {
                 String[] parts = line.split("\\s+");
                 // Le premier mot est généralement le prénom
                 return parts[0];
             }
         }
+        
         return "";
     }
 
     private List<Map<String, String>> extractDiplomes(String text) {
         List<Map<String, String>> diplomes = new ArrayList<>();
+        Set<String> diplomesVus = new HashSet<>();
         
-        // Trouver section formation/diplômes
-        Pattern sectionPattern = Pattern.compile(
-            "(?i)(formations?|diplômes?|éducation|cursus|parcours\\s+scolaire)\\s*:?\\s*\\n([\\s\\S]{50,2500}?)(?=\\n\\s*\\n\\s*[A-ZÉÈÊ]|expériences?|compétences?|$)",
-            Pattern.CASE_INSENSITIVE
-        );
-        Matcher sectionMatcher = sectionPattern.matcher(text);
+        // Patterns pour les diplômes courants
+        String[] diplomeKeywords = {
+            "licence", "master", "doctorat", "bac", "baccalauréat", "bts", "dut", 
+            "bachelor", "mba", "ingénieur", "école", "université", "diplôme"
+        };
         
-        if (sectionMatcher.find()) {
-            String section = sectionMatcher.group(2);
+        String[] lines = text.split("\\n");
+        
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i].trim().toLowerCase();
             
-            // Pattern pour extraire : Titre diplôme AVANT l'année
-            // On cherche des lignes qui contiennent un diplôme suivi d'une année à 4 chiffres
-            String[] lignes = section.split("\\n");
+            // Chercher les lignes contenant un mot-clé de diplôme
+            boolean hasDiplomeKeyword = false;
+            for (String keyword : diplomeKeywords) {
+                if (line.contains(keyword)) {
+                    hasDiplomeKeyword = true;
+                    break;
+                }
+            }
             
-            for (int i = 0; i < lignes.length; i++) {
-                String ligne = lignes[i].trim();
+            if (hasDiplomeKeyword) {
+                // Chercher une année (format YYYY ou YYYY - YYYY)
+                Pattern anneePattern = Pattern.compile("(20\\d{2}|19\\d{2})(?:\\s*-\\s*(20\\d{2}|19\\d{2}))?");
                 
-                // Chercher une année (YYYY) dans cette ligne ou la suivante
-                Pattern anneePattern = Pattern.compile("(20\\d{2}|19\\d{2})");
-                Matcher anneeMatcher = anneePattern.matcher(ligne);
-                
-                if (anneeMatcher.find()) {
-                    String annee = anneeMatcher.group(1);
+                // Chercher dans cette ligne ou les 2 lignes suivantes
+                for (int j = i; j < Math.min(i + 3, lines.length); j++) {
+                    Matcher anneeMatcher = anneePattern.matcher(lines[j]);
                     
-                    // Le diplôme est soit sur cette ligne, soit sur la ligne précédente
-                    String diplome = "";
-                    
-                    // Vérifier si le diplôme est sur la même ligne (avant l'année)
-                    String avantAnnee = ligne.substring(0, ligne.indexOf(annee)).trim();
-                    if (avantAnnee.length() > 5 && 
-                        !avantAnnee.matches("^(Septembre|Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Octobre|Novembre|Décembre).*")) {
-                        diplome = avantAnnee.replaceAll("^[•\\-*–—]\\s*", "").trim();
-                    }
-                    // Sinon regarder la ligne précédente
-                    else if (i > 0) {
-                        String lignePrecedente = lignes[i - 1].trim();
-                        if (lignePrecedente.length() > 5 &&
-                            !lignePrecedente.matches("^(Septembre|Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Octobre|Novembre|Décembre).*")) {
-                            diplome = lignePrecedente.replaceAll("^[•\\-*–—]\\s*", "").trim();
+                    if (anneeMatcher.find()) {
+                        String anneeComplete = anneeMatcher.group();
+                        String anneeObtention = anneeMatcher.group(2) != null ? anneeMatcher.group(2) : anneeMatcher.group(1);
+                        
+                        // Construire le nom du diplôme (prendre la ligne avec le keyword)
+                        String nomDiplome = lines[i].trim()
+                            .replaceAll("^[•\\-*–—]\\s*", "")
+                            .replaceAll("\\d{4}\\s*-?\\s*\\d{0,4}", "") // Retirer les années
+                            .trim();
+                        
+                        // Nettoyer le nom du diplôme
+                        if (!nomDiplome.isEmpty() && nomDiplome.length() > 3) {
+                            String key = nomDiplome + anneeObtention;
+                            if (!diplomesVus.contains(key)) {
+                                Map<String, String> diplome = new HashMap<>();
+                                diplome.put("nomDiplome", nomDiplome);
+                                diplome.put("anneeObtention", anneeObtention);
+                                diplomes.add(diplome);
+                                diplomesVus.add(key);
+                            }
                         }
-                    }
-                    
-                    // Vérifier que c'est bien un diplôme (pas une date seule, pas un mois)
-                    if (!diplome.isEmpty() && 
-                        diplome.length() > 5 &&
-                        !diplome.matches("^\\d+.*") &&
-                        !diplome.matches("^(Septembre|Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Octobre|Novembre|Décembre).*") &&
-                        !diplome.matches(".*Certified.*Architect.*") &&
-                        !diplome.matches(".*Certification.*")) {
                         
-                        // Utiliser une variable final pour la lambda
-                        final String diplomeFinal = diplome;
-                        final String anneeFinal = annee;
-                        
-                        Map<String, String> diplomeMap = new HashMap<>();
-                        diplomeMap.put("nomDiplome", diplomeFinal);
-                        diplomeMap.put("anneeObtention", anneeFinal);
-                        
-                        // Éviter les doublons
-                        boolean existe = diplomes.stream()
-                            .anyMatch(d -> d.get("nomDiplome").equals(diplomeFinal) && d.get("anneeObtention").equals(anneeFinal));
-                        
-                        if (!existe) {
-                            diplomes.add(diplomeMap);
-                        }
+                        break; // Passer au diplôme suivant
                     }
                 }
             }
@@ -152,55 +198,43 @@ public class RegexCVExtractor {
     private List<Map<String, String>> extractExperiences(String text) {
         List<Map<String, String>> experiences = new ArrayList<>();
         
-        // Trouver section expériences
-        Pattern sectionPattern = Pattern.compile(
-            "(?i)(expériences?\\s+professionnelles?|parcours\\s+professionnel|emplois?)\\s*:?\\s*\\n([\\s\\S]{50,3500}?)(?=\\n\\s*\\n\\s*[A-ZÉÈÊ]|formations?|compétences?|$)",
+        // Pour ce CV d'étudiant, on cherche les projets plutôt que les expériences pro
+        Pattern projetPattern = Pattern.compile(
+            "(?i)(projet[s]?|création|développement|conception|réalisation).*?(?:en|avec)\\s+([A-Z][a-zA-Z/+#]+)",
             Pattern.CASE_INSENSITIVE
         );
-        Matcher sectionMatcher = sectionPattern.matcher(text);
         
-        if (sectionMatcher.find()) {
-            String section = sectionMatcher.group(2);
+        String[] lines = text.split("\\n");
+        Set<String> projetsVus = new HashSet<>();
+        
+        for (String line : lines) {
+            line = line.trim();
             
-            String[] lignes = section.split("\\n");
-            
-            for (int i = 0; i < lignes.length; i++) {
-                String ligne = lignes[i].trim();
+            // Détecter les projets techniques
+            if (line.length() > 15 && line.length() < 150) {
+                Matcher m = projetPattern.matcher(line);
                 
-                // Détecter les lignes de dates (ex: "Septembre 2021 - Présent")
-                Pattern datePattern = Pattern.compile("((?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\\s+\\d{4})\\s*[-–—]\\s*((?:Janvier|Février|Mars|Avril|Mai|Juin|Juillet|Août|Septembre|Octobre|Novembre|Décembre)\\s+\\d{4}|Présent|Aujourd'hui|Actuel)", Pattern.CASE_INSENSITIVE);
-                Matcher dateMatcher = datePattern.matcher(ligne);
-                
-                if (dateMatcher.find()) {
-                    String dates = dateMatcher.group();
+                if (m.find() || 
+                    line.matches("(?i).*\\b(jeu|site|application|algorithme|compilateur|base de données)\\b.*")) {
                     
-                    // Le poste est généralement 2 lignes avant
-                    // L'entreprise est 1 ligne avant
-                    String poste = "";
-                    String entreprise = "";
-                    
-                    if (i >= 2) {
-                        poste = lignes[i - 2].trim().replaceAll("^[•\\-*–—]\\s*", "");
-                    }
-                    if (i >= 1) {
-                        entreprise = lignes[i - 1].trim().replaceAll("^[•\\-*–—]\\s*", "");
+                    // Extraire les technologies mentionnées
+                    Pattern techPattern = Pattern.compile("\\b(Java|C|Python|PHP|HTML|CSS|JavaScript|MySQL|SQL)\\b");
+                    Matcher techMatcher = techPattern.matcher(line);
+                    StringBuilder techs = new StringBuilder();
+                    while (techMatcher.find()) {
+                        if (techs.length() > 0) techs.append(", ");
+                        techs.append(techMatcher.group());
                     }
                     
-                    // Nettoyer l'entreprise (retirer "- Paris" par exemple)
-                    if (entreprise.contains(" - ")) {
-                        entreprise = entreprise.substring(0, entreprise.indexOf(" - ")).trim();
-                    }
+                    String projet = line.replaceAll("^[•\\-*–—]\\s*", "").trim();
                     
-                    if (!poste.isEmpty() && !entreprise.isEmpty() &&
-                        poste.length() > 3 && entreprise.length() > 3 &&
-                        !poste.matches("^\\d{4}$") && !entreprise.matches("^\\d{4}$")) {
-                        
+                    if (!projetsVus.contains(projet) && projet.length() > 10) {
                         Map<String, String> exp = new HashMap<>();
-                        exp.put("posteOccupe", poste);
-                        exp.put("nomEntreprise", entreprise);
-                        exp.put("dureeExperience", dates);
-                        
+                        exp.put("posteOccupe", "Projet étudiant");
+                        exp.put("nomEntreprise", projet);
+                        exp.put("dureeExperience", techs.length() > 0 ? "Technologies: " + techs : "");
                         experiences.add(exp);
+                        projetsVus.add(projet);
                     }
                 }
             }
@@ -212,63 +246,51 @@ public class RegexCVExtractor {
     private List<String> extractCompetences(String text) {
         Set<String> competences = new LinkedHashSet<>();
         
-        // Trouver section compétences TECHNIQUES uniquement
-        Pattern sectionPattern = Pattern.compile(
-            "(?i)(compétences?\\s+techniques?|technologies?|langages?)\\s*:?\\s*\\n([\\s\\S]{20,2000}?)(?=\\n\\s*\\n\\s*(?:compétences?\\s+linguistiques?|langues?|certifications?|projets?|centres?|$))",
-            Pattern.CASE_INSENSITIVE
-        );
-        Matcher sectionMatcher = sectionPattern.matcher(text);
+        // Liste étendue de compétences techniques
+        String[] techCompetences = {
+            "Java", "HTML", "CSS", "JavaScript", "Python", "PHP", "C", "C\\+\\+", "SQL", "MySQL",
+            "React", "Angular", "Vue", "Node\\.js", "Spring", "Django", "Laravel",
+            "Git", "Docker", "Kubernetes", "AWS", "Azure", "Linux", "MongoDB",
+            "TypeScript", "Ruby", "Go", "Rust", "Swift", "Kotlin", "Scala"
+        };
         
-        if (sectionMatcher.find()) {
-            String section = sectionMatcher.group(2);
-            
-            // Extraire items séparés par virgules, puces, retours à la ligne
-            String[] items = section.split("[,;•\\-–—\\n]+");
-            for (String item : items) {
-                String comp = item.trim()
-                    .replaceAll("^[\\s:]+", "")
-                    .replaceAll("[\\s:]+$", "")
-                    .replaceAll("^(Langages de programmation|Frameworks et bibliothèques|Bases de données|Outils et technologies|Méthodologies)$", "");
-                
-                // Filtrer les titres de sections et items trop courts
-                if (!comp.isEmpty() && 
-                    comp.length() > 2 && 
-                    comp.length() < 50 &&
-                    !comp.matches("(?i)^(langages?|frameworks?|bases?|outils?|technologies?|méthodologies?).*") &&
-                    !comp.matches("^[A-ZÉÈÊ\\s]{5,}$")) { // Pas de texte tout en majuscules
-                    
-                    competences.add(comp);
-                }
+        // Chercher chaque compétence dans le texte
+        for (String tech : techCompetences) {
+            Pattern pattern = Pattern.compile("\\b" + tech + "\\b", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(text);
+            if (matcher.find()) {
+                // Utiliser la casse originale du pattern
+                competences.add(tech.replace("\\+\\+", "++").replace("\\.", "."));
             }
         }
         
-        // Ajouter les langues séparément
+        // Extraire les langues
         Pattern languePattern = Pattern.compile(
-            "(?i)(langues?|compétences?\\s+linguistiques?)\\s*:?\\s*\\n([\\s\\S]{10,500}?)(?=\\n\\s*\\n|certifications?|projets?|$)",
+            "(Français|Anglais|Espagnol|Allemand|Italien|Russe|Arabe|Chinois)\\s*[:-]?\\s*(Maternel|Paternel|natif|courant|bilingue|B1|B2|C1|C2)?",
             Pattern.CASE_INSENSITIVE
         );
-        Matcher langueMatcher = languePattern.matcher(text);
         
-        if (langueMatcher.find()) {
-            String section = langueMatcher.group(2);
-            String[] lignes = section.split("\\n");
-            
-            for (int i = 0; i < lignes.length; i++) {
-                String ligne = lignes[i].trim();
-                
-                // Chercher pattern "Langue" suivi de "Niveau"
-                if (ligne.matches("(?i)^(Français|Anglais|Espagnol|Allemand|Italien|Arabe|Chinois|Japonais|Portugais|Russe).*")) {
-                    String langue = ligne;
-                    // Si la ligne suivante contient le niveau, combiner
-                    if (i + 1 < lignes.length) {
-                        String ligneSuivante = lignes[i + 1].trim();
-                        if (ligneSuivante.matches("(?i).*(maternelle|courant|bilingue|intermédiaire|débutant|notions|[ABC][12]).*")) {
-                            langue = langue + " - " + ligneSuivante;
-                            i++; // Sauter la ligne suivante
-                        }
-                    }
-                    competences.add(langue);
-                }
+        Matcher langueMatcher = languePattern.matcher(text);
+        while (langueMatcher.find()) {
+            String langue = langueMatcher.group(1);
+            String niveau = langueMatcher.group(2);
+            if (niveau != null && !niveau.isEmpty()) {
+                competences.add(langue + " (" + niveau + ")");
+            } else {
+                competences.add(langue);
+            }
+        }
+        
+        // Soft skills courants
+        String[] softSkills = {
+            "autonome", "responsable", "capacité d'adaptation", "travail d'équipe",
+            "leadership", "communication", "créatif", "rigoureux", "organisé"
+        };
+        
+        for (String skill : softSkills) {
+            if (text.toLowerCase().contains(skill.toLowerCase())) {
+                // Capitaliser la première lettre
+                competences.add(Character.toUpperCase(skill.charAt(0)) + skill.substring(1));
             }
         }
         
@@ -276,54 +298,67 @@ public class RegexCVExtractor {
     }
 
     private String extractPermis(String text) {
-        Pattern pattern = Pattern.compile("(?i)permis\\s+([ABCDabcd](?:[\\s,&et]+[ABCDabcd])*)", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("(?i)permis\\s*[:-]?\\s*([ABCDabcd](?:[\\s,&et]+[ABCDabcd])*)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
         return matcher.find() ? matcher.group().trim() : "Non mentionné";
     }
 
     private String extractPosteVise(String text) {
-        Pattern pattern = Pattern.compile(
-            "(?i)(objectif|poste\\s+(?:visé|recherché)|recherche|souhaite)\\s*:?\\s*(.+?)(?=\\n\\n|disponibilité|formations?|$)",
+        // Chercher dans la section PROFILE ou OBJECTIF
+        Pattern profilePattern = Pattern.compile(
+            "(?i)(profile|profil|objectif|recherche)[\\s:]*\\n?([\\s\\S]{20,300}?)(?=\\n\\s*[A-Z]{4,}|$)",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL
         );
-        Matcher matcher = pattern.matcher(text);
+        
+        Matcher matcher = profilePattern.matcher(text);
         if (matcher.find()) {
-            String poste = matcher.group(2).trim();
-            // Prendre seulement la première phrase
-            if (poste.contains(".")) {
-                poste = poste.substring(0, poste.indexOf(".")).trim();
+            String profil = matcher.group(2).trim();
+            // Prendre seulement la première phrase ou les 100 premiers caractères
+            if (profil.contains(".")) {
+                profil = profil.substring(0, profil.indexOf(".")).trim();
             }
-            return poste;
+            if (profil.length() > 100) {
+                profil = profil.substring(0, 100) + "...";
+            }
+            return profil;
         }
+        
+        // Si pas trouvé, chercher "Étudiant en ..." ou "Développeur ..."
+        Pattern rolePattern = Pattern.compile(
+            "(?i)(Étudiant en|Développeur|Ingénieur|Consultant|Analyste)\\s+([\\w\\s]{5,50})",
+            Pattern.CASE_INSENSITIVE
+        );
+        Matcher roleMatcher = rolePattern.matcher(text);
+        if (roleMatcher.find()) {
+            return roleMatcher.group().trim();
+        }
+        
         return "";
     }
 
     private String extractDisponibilite(String text) {
         Pattern pattern = Pattern.compile(
-            "(?i)disponib(?:le|ilité)\\s*:?\\s*(.+?)(?=\\n\\n|formations?|$)",
+            "(?i)disponib(?:le|ilité)\\s*[:-]?\\s*([\\w\\s,]{3,50})(?=\\n|$)",
             Pattern.CASE_INSENSITIVE
         );
         Matcher matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            return matcher.group(1).trim();
-        }
-        return "";
+        return matcher.find() ? matcher.group(1).trim() : "";
     }
 
     public boolean isDataComplete(Map<String, Object> data) {
         // Vérifier si les champs critiques sont remplis
-        boolean nomOk = !data.get("nom").toString().isEmpty();
-        boolean prenomOk = !data.get("prenom").toString().isEmpty();
-        boolean mailOk = !data.get("mail").toString().isEmpty();
-        boolean telephoneOk = !data.get("telephone").toString().isEmpty();
+        boolean nomOk = data.get("nom") != null && !data.get("nom").toString().isEmpty();
+        boolean prenomOk = data.get("prenom") != null && !data.get("prenom").toString().isEmpty();
+        boolean mailOk = data.get("mail") != null && !data.get("mail").toString().isEmpty();
+        boolean telephoneOk = data.get("telephone") != null && !data.get("telephone").toString().isEmpty();
         
         @SuppressWarnings("unchecked")
         List<Map<String, String>> experiences = (List<Map<String, String>>) data.get("experiences");
         @SuppressWarnings("unchecked")
         List<String> competences = (List<String>) data.get("competences");
         
-        boolean experiencesOk = !experiences.isEmpty();
-        boolean competencesOk = competences.size() >= 5; // Au moins 5 compétences
+        boolean experiencesOk = experiences != null && !experiences.isEmpty();
+        boolean competencesOk = competences != null && competences.size() >= 3; // Au moins 3 compétences
         
         return nomOk && prenomOk && mailOk && telephoneOk && experiencesOk && competencesOk;
     }
