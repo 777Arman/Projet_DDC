@@ -146,6 +146,7 @@
       display: inline-block;
       margin: 5px 5px 5px 0;
     }
+    
   </style>
 </head>
 <body>
@@ -186,6 +187,7 @@
       <div style="margin-top: 20px;">
         <a th:href="@{/candidature/{id}/download/cv(id=${candidature.id})}" class="download-btn">Télécharger CV</a>
         <a th:href="@{/candidature/{id}/download/lm(id=${candidature.id})}" class="download-btn">Télécharger LM</a>
+        <a th:href="@{/candidature/{id}/export/json(id=${candidature.id})}" class="download-btn">Exporter JSON</a>
       </div>
     </div>
 
