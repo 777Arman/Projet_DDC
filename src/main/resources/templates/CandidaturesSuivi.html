@@ -1,45 +1,58 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacter le candidat</title>
-    <link rel="stylesheet" href="/css/FormulaireContact.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suivi des Candidatures</title>
+  <link rel="stylesheet" href="/css/CandidaturesSuivi.css">
 </head>
 <body>
 
-<header class="main-header">
-    <div class="header-title">Envoyer un email au candidat</div>
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="header-title">Suivi des Candidatures</div>
     <nav class="header-nav">
-        <a href="/AccueilRH">Accueil RH</a>
-        <a href="/CandidaturesEnCours">Candidatures en traitement</a>
-        <a href="/CandidaturesSuivi">Candidatures validées</a>
-        <a href="/Stockage">Stockage</a>
-        <a href="/Compagnies">Consortium</a>
+      <a href="/AccueilRH">Accueil RH</a>
+      <a href="/CandidaturesEnCours">Candidatures en traitement</a>
+      <a href="/CandidaturesSuivi" class="active">Candidatures validées</a>
+      <a href="/Stockage">Stockage</a>
+      <a href="/Compagnies">Consortium</a>
     </nav>
-</header>
+  </header>
 
-<div class="main-container">
-    <h2>Envoyer un message</h2>
+  <!-- CONTENU -->
+  <div class="main-container">
 
-    <form th:action="@{/envoyerEmail}" method="post" class="contact-form">
-        <input type="hidden" name="candidatureId" th:value="${candidatureId}" />
+    <h2>Candidatures validées</h2>
 
-        <div class="form-group">
-            <label for="objet">Objet :</label>
-            <input type="text" id="objet" name="objet" placeholder="Objet du message" required>
+    <!-- Si aucune candidature -->
+    <div th:if="${candidaturesValidees.isEmpty()}" class="no-data">
+      Aucune candidature validée pour le moment.
+    </div>
+
+    <!-- Liste des candidatures -->
+    <div th:if="${!candidaturesValidees.isEmpty()}">
+      <div th:each="cand : ${candidaturesValidees}" class="cand-card">
+
+        <div class="cand-header">
+          <h3 th:text="${cand.nom} + ' ' + ${cand.prenom}">Nom Prénom</h3>
+          <span class="tag" th:text="${cand.poste}">Poste</span>
         </div>
 
-        <div class="form-group">
-            <label for="contenu">Message :</label>
-            <textarea id="contenu" name="contenu" placeholder="Votre message..." rows="6" required></textarea>
+        <div class="cand-info">
+          <p><strong>Email :</strong> <span th:text="${cand.email}">email@example.com</span></p>
+          <p><strong>Téléphone :</strong> <span th:text="${cand.telephone}">06 00 00 00 00</span></p>
+        </div> 
+
+        <div class="actions">
+          <a th:href="@{/contacter/{id}(id=${cand.id})}" class="btn btn-contacter">Contacter</a>
+          <a th:href="@{/supprimer/{id}(id=${cand.id})}" class="btn btn-supprimer">Supprimer</a>
         </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn-submit">Envoyer</button>
-        </div>
-    </form>
-</div>
+      </div>
+    </div>
+
+  </div>
 
 </body>
 </html>
