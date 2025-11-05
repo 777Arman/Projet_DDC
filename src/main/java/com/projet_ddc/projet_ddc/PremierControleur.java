@@ -14,9 +14,14 @@ public class PremierControleur {
     @Autowired
     private CandidatureRepository candidatureRepository;
 
+    @Autowired
+    private CVDataRepository cvDataRepository;
+
+    @Autowired
+    private EmailService emailService;  // ← AJOUTÉ
+
     @GetMapping("/AccueilRH")
     public String accueilRH(Model model, HttpSession session) {
-        // Vérifie si quelqu’un est connecté
         if (session.getAttribute("entrepriseConnectee") == null) {
             return "redirect:/connexion";
         }
@@ -31,15 +36,32 @@ public class PremierControleur {
         @RequestParam int etatVoulu,
         HttpSession session
     ) {
-        // Bloque si pas connecté
         if (session.getAttribute("entrepriseConnectee") == null) {
             return "redirect:/connexion";
         }
 
         Candidature c = candidatureRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Candidature introuvable"));
+        
         c.setEtat(etatVoulu);
-        candidatureRepository.save(c);  
+        candidatureRepository.save(c);
+
+        // ========== BLOC AJOUTÉ : Envoi d'email ==========
+        if (etatVoulu == 1 || etatVoulu == 2) {
+            cvDataRepository.findByCandidatureId(id).ifPresent(cvData -> {
+                String email = cvData.getEmail();
+                if (email != null && !email.isEmpty()) {
+                    if (etatVoulu == 1) {
+                        emailService.envoyerEmailAcceptation(email, c.getPoste());
+                    } else {
+                        emailService.envoyerEmailRefus(email, c.getPoste());
+                    }
+                } else {
+                    System.err.println("⚠️ Pas d'email trouvé pour la candidature " + id);
+                }
+            });
+        }
+        // ================================================
 
         return "redirect:/AccueilRH";
     }
