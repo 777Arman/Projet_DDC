@@ -18,7 +18,7 @@ public class PremierControleur {
     private CVDataRepository cvDataRepository;
 
     @Autowired
-    private EmailService emailService;  // ← AJOUTÉ
+    private EmailService emailService;  
 
     @GetMapping("/AccueilRH")
     public String accueilRH(Model model, HttpSession session) {

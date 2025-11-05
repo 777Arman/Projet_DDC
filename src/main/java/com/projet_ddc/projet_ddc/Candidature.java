@@ -17,6 +17,8 @@ public class Candidature {
     private String nom;
     private String prenom;
     private String poste;
+    private String email;
+    private String telephone;
     private int etat = -1; // 0 = en cours, 1 = accepté, 2 = refusé
 
     private boolean stockage;
@@ -69,6 +71,21 @@ public class Candidature {
 
     public void setPoste(String poste) { 
         this.poste = poste; 
+    }
+
+    public String getEmail() { 
+        return email; 
+    }
+    public void setEmail(String email) { 
+        this.email = email; 
+    }
+
+    public String getTelephone() { 
+        return telephone; 
+    }
+
+    public void setTelephone(String telephone) { 
+        this.telephone = telephone; 
     }
 
     public int getEtat() { 

@@ -1,0 +1,175 @@
+/* ----- GLOBAL ----- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #0b1220;
+  color: #f0f4ff;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.main-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ----- HEADER ----- */
+.main-header {
+  background: linear-gradient(145deg, #101a2d, #0e1626);
+  border: 1px solid #1f2a3d;
+  border-radius: 14px;
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+}
+
+.header-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #dce6ff;
+}
+
+.header-nav a {
+  color: #9aa7c2;
+  text-decoration: none;
+  margin-left: 20px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.header-nav a:hover,
+.header-nav a.active {
+  color: #3d7eff;
+}
+
+/* ----- TITRE ----- */
+h2 {
+  color: #9aa7c2;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ----- CANDIDATURES ACCEPTÉES ----- */
+.cand-card {
+  background: #0b1322;
+  border: 1px solid #1f2a3d;
+  border-left: 4px solid #3d7eff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: 0.2s;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+}
+
+.cand-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(61, 126, 255, 0.25);
+}
+
+.cand-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cand-header h3 {
+  font-size: 18px;
+  color: #f0f4ff;
+  margin-right: 10px;
+}
+
+.tag {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(61, 126, 255, 0.15);
+  color: #3d7eff;
+}
+
+/* ----- INFOS ----- */
+.cand-info p {
+  color: #c9d6ef;
+  margin: 4px 0;
+}
+
+/* ----- ACTIONS ----- */
+.actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-block;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.btn-contacter {
+  background: linear-gradient(90deg, #3d7eff, #2a62e0);
+}
+
+.btn-supprimer {
+  background: linear-gradient(90deg, #dc3545, #b52a36);
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 0 10px rgba(61, 126, 255, 0.25);
+}
+
+/* ----- MESSAGE VIDE ----- */
+.no-data {
+  text-align: center;
+  color: #9aa7c2;
+  background: #0b1322;
+  padding: 20px;
+  border-radius: 8px;
+  font-style: italic;
+  margin-top: 40px;
+}
+
+/* ----- RESPONSIVE ----- */
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header-nav {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
