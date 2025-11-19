@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class OllamaService {
 
     private static final String OLLAMA_API_URL = "http://localhost:11434/api/generate";
-    private static final String MODEL = "llama3.1:8b";
+    private static final String MODEL = "mistral:latest";
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
     private boolean ollamaAvailable = false;
