@@ -101,33 +101,59 @@ public class OllamaService {
     }
 
     private String buildPrompt(String cvText) {
-        return """
-            Extrais les données du CV en JSON selon cette structure exacte :
-            
-            {
-              "idCandidat": "<génère un UUID>",
-              "nom": "<nom de famille en MAJUSCULES>",
-              "prenom": "<prénom>",
-              "mail": "<email>",
-              "telephone": "<numéro>",
-              "diplomes": [{"nomDiplome": "<titre complet>", "anneeObtention": "<YYYY>"}],
-              "experiences": [{"nomEntreprise": "<entreprise SEULEMENT>", "dureeExperience": "<dates>", "posteOccupe": "<titre poste SEULEMENT>"}],
-              "posteVise": "<objectif professionnel>",
-              "dateDisponibilite": "<disponibilité>",
-              "competences": ["<langages>", "<frameworks>", "<outils>", "<langues avec niveau>"],
-              "permis": "<type ou 'Non mentionné'>"
-            }
-            
-            Règles strictes :
-            - Retourne UNIQUEMENT le JSON valide, aucun texte
-            - experiences : SEULEMENT entreprise + dates + poste (pas de compétences/langues ici)
-            - competences : technologies ET langues (ex: "Anglais courant", "Java", "Docker")
-            - Si info absente : "" pour string, [] pour array
-            - Extraire TOUTES les entrées de chaque section
-            
-            CV :
-            """ + cvText;
+    return """
+Extrait les informations du CV ci-dessous et renvoie UNIQUEMENT du JSON avec les champs suivants :
+
+{
+  "idCandidature": "",
+  "nom": "",
+  "prenom": "",
+  "mail": "",
+  "telephone": "",
+  "diplomes": [
+    {
+      "nomDiplome": "",
+      "anneeObtention": "",
+      "domaine": ""
     }
+  ],
+  "experiences": [
+    {
+      "nomEntreprise": "",
+      "dureeExperience": "",
+      "dateDebut": ""
+    }
+  ],
+  "posteVise": "",
+  "dateDisponibilite": "",
+  "competences": [],
+  "softSkills": [],
+  "permisDeConduite": [],
+  "langues": [
+    {
+      "langue": "",
+      "niveau": ""
+    }
+  ],
+  "dateCandidature": "",
+  "fichiers": {
+    "cv_filename": "",
+    "lm_filename": ""
+  }
+}
+
+Règles :
+- Si une donnée est absente du CV : renvoyer "" ou [] selon le type.
+- Aucune phrase, aucune explication. Juste le JSON.
+- Toujours un JSON valide.
+- Les dates doivent être sous format ISO lorsque possible (AAAA-MM-JJ).
+- Ne jamais inventer de diplômes ou entreprises inexistants, seulement ce qui est présent dans le texte.
+
+Maintenant, extrais les informations du CV suivant :
+
+""" + cvText;
+}
+
 
     private String addIdIfMissing(String jsonString) throws IOException {
         try {
