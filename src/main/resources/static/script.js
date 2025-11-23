@@ -38,14 +38,20 @@ document.getElementById("formulaire").addEventListener("submit", function(e) {
 
     fetch("/upload", {
         method: "POST",
-        body: formData
+        body: formData,
+        redirect: 'follow'
     })
     .then(async response => {
+        // If the server redirected (normal form submit would follow), follow it client-side
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+
         const text = await response.text();
         console.log("Réponse du serveur:", text);
-        return text;
-    })
-    .then(text => {
+
+        // Heuristic: if server indicates success, reset form and show a small message
         if (text.includes("succès") || text.includes("enregistrée")) {
             alert("Vos fichiers ont bien été envoyés !");
             document.getElementById("formulaire").reset();

@@ -1,19 +1,21 @@
 package com.projet_ddc.projet_ddc;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 public class UploadController {
@@ -33,8 +35,7 @@ public class UploadController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/upload")
-    @ResponseBody
-    public String uploadToDatabase(
+    public Object uploadToDatabase(
             @RequestParam("cv") MultipartFile cv,
             @RequestParam("lm") MultipartFile lm,
             @RequestParam("poste") String poste,
@@ -153,18 +154,19 @@ public class UploadController {
                 }
             }
             
-            System.out.println("=== Traitement terminé avec succès ===");
-            
-            return "Candidature enregistrée avec succès !\n" +
-                   "Candidat : " + prenomCandidat + " " + nomCandidat + "\n" +
-                   "Poste : " + poste + "\n" +
-                   "Email : " + emailCandidat + "\n" +
-                   "Téléphone : " + telephoneCandidat + "\n" +
-                   "Fichiers sauvegardés : " + cvName + ", " + lmName;
+                 System.out.println("=== Traitement terminé avec succès ===");
+
+                 // Redirect the browser to the confirmation page (form submit will follow)
+                 return "redirect:/ConfirmationCadidatures";
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "Erreur lors de l'enregistrement : " + e.getMessage();
+            return ResponseEntity.status(500).body("Erreur lors de l'enregistrement : " + e.getMessage());
         }
+    }
+
+    @GetMapping("/ConfirmationCadidatures")
+    public String confirmationPage() {
+        return "ConfirmationCadidatures";
     }
 }
