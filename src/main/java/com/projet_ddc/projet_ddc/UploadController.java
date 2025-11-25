@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class UploadController {
 
@@ -35,12 +37,13 @@ public class UploadController {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostMapping("/upload")
-    public Object uploadToDatabase(
+        public Object uploadToDatabase(
             @RequestParam("cv") MultipartFile cv,
             @RequestParam("lm") MultipartFile lm,
             @RequestParam("poste") String poste,
             @RequestParam("stockage") boolean stockage,
-            @RequestParam("partage") boolean partage
+            @RequestParam("partage") boolean partage,
+            HttpSession session
     ) {
         try {
             System.out.println("=== Nouvelle candidature reçue ===");
@@ -112,6 +115,8 @@ public class UploadController {
             Candidature candidature = new Candidature();
             candidature.setNom(nomCandidat);
             candidature.setPrenom(prenomCandidat);
+            // Enregistrer l'email détecté aussi dans l'entité Candidature (fallback pour envois)
+            candidature.setEmail(emailCandidat);
             candidature.setPoste(poste);
             candidature.setEtat(-1); // -1 = nouvelle candidature
             candidature.setStockage(stockage);
@@ -165,13 +170,14 @@ public class UploadController {
             
                  System.out.println("=== Traitement terminé avec succès ===");
 
-                 // If the candidate allowed sharing, redirect to the sharing page
-                 if (candidature.isPartage()) {
+                 // Only redirect to the sharing/consortium selection page when an
+                 // entreprise user is connected (avoid sending applicants to internal pages)
+                 if (candidature.isPartage() && session != null && session.getAttribute("entrepriseConnectee") != null) {
                      return "redirect:/Compagnies/partager/" + candidature.getId();
                  }
 
-                 // Otherwise redirect to the confirmation page
-                 return "redirect:/ConfirmationCadidatures";
+                 // Default: redirect the applicant to the confirmation page
+                 return "redirect:/ConfirmationCandidatures";
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,8 +185,8 @@ public class UploadController {
         }
     }
 
-    @GetMapping("/ConfirmationCadidatures")
+    @GetMapping("/ConfirmationCandidatures")
     public String confirmationPage() {
-        return "ConfirmationCadidatures";
+        return "ConfirmationCandidatures";
     }
 }

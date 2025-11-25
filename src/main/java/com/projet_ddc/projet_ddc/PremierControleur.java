@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -48,18 +49,32 @@ public class PremierControleur {
 
         // ========== BLOC AJOUTÉ : Envoi d'email ==========
         if (etatVoulu == 1 || etatVoulu == 2) {
-            cvDataRepository.findByCandidatureId(id).ifPresent(cvData -> {
-                String email = cvData.getEmail();
-                if (email != null && !email.isEmpty()) {
-                    if (etatVoulu == 1) {
-                        emailService.envoyerEmailAcceptation(email, c.getPoste());
-                    } else {
-                        emailService.envoyerEmailRefus(email, c.getPoste());
-                    }
+            // Prefer CVData email, fallback to Candidature.email
+            String emailToUse = null;
+            try {
+                emailToUse = cvDataRepository.findByCandidatureId(id)
+                        .map(CVData::getEmail)
+                        .orElse(null);
+            } catch (Exception ex) {
+                System.err.println("Erreur récupération CVData pour " + id + " : " + ex.getMessage());
+            }
+
+            if (emailToUse == null || emailToUse.isEmpty()) {
+                // use the email stored on the candidature as fallback
+                emailToUse = c.getEmail();
+            }
+
+            if (emailToUse != null && !emailToUse.isEmpty()) {
+                if (etatVoulu == 1) {
+                    System.out.println("Envoi email acceptation à : " + emailToUse);
+                    emailService.envoyerEmailAcceptation(emailToUse, c.getPoste());
                 } else {
-                    System.err.println("⚠️ Pas d'email trouvé pour la candidature " + id);
+                    System.out.println("Envoi email refus à : " + emailToUse);
+                    emailService.envoyerEmailRefus(emailToUse, c.getPoste());
                 }
-            });
+            } else {
+                System.err.println("⚠️ Pas d'email trouvé pour la candidature " + id + " (ni CVData ni Candidature)");
+            }
         }
         // ================================================
 
