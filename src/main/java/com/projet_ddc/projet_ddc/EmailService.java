@@ -55,6 +55,20 @@ public class EmailService {
         }
     }
 
+    // Envoi d'un email personnalisé (objet + contenu) au destinataire
+    public void envoyerEmailPersonnalise(String destinataire, String objet, String contenu) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(destinataire);
+            message.setSubject(objet != null ? objet : "Message de la part d'Aspelos");
+            message.setText(contenu != null ? contenu : "");
+            mailSender.send(message);
+            System.out.println(" Email personnalisé envoyé à : " + destinataire);
+        } catch (Exception e) {
+            System.err.println(" Erreur envoi email personnalisé : " + e.getMessage());
+        }
+    }
+
     // Envoi d'une candidature (avec pièces jointes CV/LM si présentes)
     public void envoyerCandidatureVersEntreprise(String destinataire, Candidature candidature) {
         try {
@@ -70,7 +84,7 @@ public class EmailService {
             sb.append("Prénom : ").append(candidature.getPrenom() != null ? candidature.getPrenom() : "").append("\n");
             sb.append("Email candidat : ").append(candidature.getEmail() != null ? candidature.getEmail() : "Non renseigné").append("\n");
             sb.append("Téléphone : ").append(candidature.getTelephone() != null ? candidature.getTelephone() : "Non renseigné").append("\n\n");
-            sb.append("Cordialement,\nLe consortium");
+            sb.append("Cordialement,\nAspelos");
 
             helper.setText(sb.toString());
 
@@ -120,7 +134,6 @@ public class EmailService {
                 helper.addAttachment(lmName, new ByteArrayResource(candidature.getLm()));
             }
 
-            // Attach JSON if provided
             if (extractedJson != null && !extractedJson.isBlank()) {
                 String jsonName = "candidature_" + (candidature.getId() != null ? candidature.getId() : "unknown") + ".json";
                 helper.addAttachment(jsonName, new ByteArrayResource(extractedJson.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
