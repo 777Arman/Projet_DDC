@@ -7,18 +7,19 @@
   <link rel="stylesheet" href="/css/stockage.css">
 </head>
 <body>
-  <header class="main-header">
-        <div class="header-title">Stockage de candidatures</div>
-        <nav class="header-nav">
-           <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
-            <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
-            <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
-            <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
-            <a href="/Compagnies" class="nav-link active">Consortium</a>
-        </nav>
-    </header>
 
-  <main class="main-container">
+<header class="main-header">
+    <div class="header-title">Stockage de candidatures</div>
+    <nav class="header-nav">
+        <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+        <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+        <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+        <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+        <a href="/Compagnies" class="nav-link active">Consortium</a>
+    </nav>
+</header>
+
+<main class="main-container">
 
     <!-- Statistiques -->
     <section class="card">
@@ -30,45 +31,60 @@
       </div>
     </section>
 
-    <!-- Candidatures stockées -->
+    
+    <!-- CANDIDATURES STOCKÉES -->
     <section class="card">
       <h2>Candidatures Refusées Stockées</h2>
 
       <div th:if="${candidaturesStockees.isEmpty()}" class="no-data">
-        Aucune candidature refusée avec stockage autorisé.
+        Aucune candidature dans le stockage autorisé.
       </div>
 
-      <ul th:if="${!candidaturesStockees.isEmpty()}">
-        <li th:each="c : ${candidaturesStockees}" class="cand-card">
-          <div class="cand-header">
-            <h3 th:text="${c.nom + ' ' + c.prenom}">Nom Prénom</h3>
-            <span class="tag tag-stockage">Stockage autorisé</span>
-            <span th:if="${c.partage}" class="tag tag-partage">Partage autorisé</span>
-            <span th:unless="${c.partage}" class="tag tag-warning">Partage non autorisé</span>
-          </div>
+      <table th:if="${!candidaturesStockees.isEmpty()}" class="table-stockage">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Mail</th>
+            <th>Poste visé</th>
+            <th>Actions</th>
+            <th>Partager</th>
+          </tr>
+        </thead>
 
-          <p><strong>Poste :</strong> <span th:text="${c.poste}">Développeur</span></p>
+        <tbody>
+          <tr th:each="c : ${candidaturesStockees}">
+            <td th:text="${c.nom}"></td>
+            <td th:text="${c.prenom}"></td>
+            <td th:text="${c.email}"></td>
+            <td th:text="${c.poste}"></td>
 
-          <div class="actions">
-            <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Voir détail</a>
 
-            <form th:action="@{/ChangementEtatCandidature}" method="post">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <input type="hidden" name="etatVoulu" value="0" />
-              <button class="btn btn-traiter">Retraiter</button>
-            </form>
+            <td class="actions">
+                <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Détail</a>
 
-            <form th:action="@{/Stockage/supprimerCandidature}" method="post"
-                  onsubmit="return confirm('Supprimer définitivement cette candidature ?');">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <button class="btn btn-supprimer">Supprimer</button>
-            </form>
-          </div>
-        </li>
-      </ul>
+                <!-- <form th:action="@{/ChangementEtatCandidature}" method="post">
+                    <input type="hidden" name="id" th:value="${c.id}">
+                    <input type="hidden" name="etatVoulu" value="0">
+                    <button class="btn btn-traiter">Retraiter</button>
+                </form>
+                -->
+                <form th:action="@{/Stockage/supprimerCandidature}" method="post"
+                      onsubmit="return confirm('Supprimer définitivement cette candidature ?');">
+                    <input type="hidden" name="id" th:value="${c.id}">
+                    <button class="btn btn-supprimer">Supprimer</button>
+                </form>
+            </td> 
+            <td th:if="${c.partage}">
+              <a th:href="@{/Compagnies/partager/{id}(id=${c.id})}" class="btn btn-partager">Partager</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-    <!-- Candidatures sans stockage -->
+
+    <!-- CANDIDATURES SANS STOCKAGE -->
     <section class="card warning">
       <h2> Candidatures sans Stockage Autorisé</h2>
       <p class="alert">
@@ -76,28 +92,43 @@
       </p>
 
       <div th:if="${candidaturesSansStockage.isEmpty()}" class="no-data">
-         Aucune candidature non conforme.
+         Aucune candidature non sauvegardable.
       </div>
 
-      <ul th:if="${!candidaturesSansStockage.isEmpty()}">
-        <li th:each="c : ${candidaturesSansStockage}" class="cand-card danger">
-          <h3 th:text="${c.nom + ' ' + c.prenom}">Nom Prénom</h3>
-          <p><strong>Poste :</strong> <span th:text="${c.poste}">Développeur</span></p>
-          <span class="tag tag-danger">Stockage non autorisé</span>
+      <table th:if="${!candidaturesSansStockage.isEmpty()}" class="table-stockage danger-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Mail</th>
+            <th>Poste visé</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-          <div class="actions">
-            <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Voir détail</a>
+        <tbody>
+          <tr th:each="c : ${candidaturesSansStockage}">
+            <td th:text="${c.nom}"></td>
+            <td th:text="${c.prenom}"></td>
+            <td th:text="${c.email}"></td>
+            <td th:text="${c.poste}"></td>
 
-            <form th:action="@{/Stockage/supprimerCandidature}" method="post"
-                  onsubmit="return confirm('Supprimer cette candidature (pas de consentement) ?');">
-              <input type="hidden" name="id" th:value="${c.id}" />
-              <button class="btn btn-supprimer">Supprimer</button>
-            </form>
-          </div>
-        </li>
-      </ul>
+
+            <td class="actions">
+              <a th:href="@{/candidature/{id}(id=${c.id})}" class="btn btn-detail">Détail</a>
+
+              <form th:action="@{/Stockage/supprimerCandidature}" method="post"
+                    onsubmit="return confirm('Supprimer cette candidature (pas de consentement) ?');">
+                <input type="hidden" name="id" th:value="${c.id}">
+                <button class="btn btn-supprimer">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-  </main>
+</main>
+
 </body>
 </html>

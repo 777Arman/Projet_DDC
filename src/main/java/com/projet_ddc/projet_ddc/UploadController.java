@@ -81,9 +81,18 @@ public class UploadController {
                     if (jsonNode.has("prenom") && !jsonNode.get("prenom").asText().isEmpty()) {
                         prenomCandidat = jsonNode.get("prenom").asText();
                     }
-                    if (jsonNode.has("mail")) {
-                        emailCandidat = jsonNode.get("mail").asText();
+                    // Log the raw JSON returned by the extractor for debugging
+                    System.out.println("DEBUG: extractedJson = " + extractedJson);
+
+                    // Support both keys 'mail' (used by our regex/LLM prompt) and
+                    // 'email' (possible variants from external extractors). Prefer non-empty value.
+                    if (jsonNode.has("mail") && !jsonNode.get("mail").asText().isEmpty()) {
+                        emailCandidat = jsonNode.get("mail").asText().trim();
+                    } else if (jsonNode.has("email") && !jsonNode.get("email").asText().isEmpty()) {
+                        emailCandidat = jsonNode.get("email").asText().trim();
                     }
+
+                    System.out.println("DEBUG: emailCandidat = '" + emailCandidat + "'");
                     if (jsonNode.has("telephone")) {
                         telephoneCandidat = jsonNode.get("telephone").asText();
                     }
@@ -156,7 +165,12 @@ public class UploadController {
             
                  System.out.println("=== Traitement terminé avec succès ===");
 
-                 // Redirect the browser to the confirmation page (form submit will follow)
+                 // If the candidate allowed sharing, redirect to the sharing page
+                 if (candidature.isPartage()) {
+                     return "redirect:/Compagnies/partager/" + candidature.getId();
+                 }
+
+                 // Otherwise redirect to the confirmation page
                  return "redirect:/ConfirmationCadidatures";
 
         } catch (Exception e) {

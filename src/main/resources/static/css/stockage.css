@@ -228,3 +228,32 @@ h3 {
 .header-nav a:hover {
   color: #3d7eff;
 }
+
+.table-stockage {
+  width: 100%;
+  border-collapse: collapse;
+  border: black 2px solid;
+  margin-top: 15px;
+  background: #0b1322;
+  color: #f0f4ff;
+}
+
+.table-stockage th, 
+.table-stockage td {
+  padding: 12px;
+  border-bottom: 1px solid #1f2a3d;
+  text-align: left;
+}
+
+.table-stockage thead {
+  background: #101a2d;
+}
+
+.table-stockage tr:hover {
+  background: rgba(61, 126, 255, 0.05);
+}
+
+.danger-table thead {
+  background: rgba(220, 53, 69, 0.2);
+}
+

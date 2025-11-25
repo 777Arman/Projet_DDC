@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partager la candidature</title>
+  <link rel="stylesheet" href="/css/PartageCompagnies.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-title">Partager la candidature</div>
+    <nav class="header-nav">
+        <a href="/AccueilRH" class="nav-btn">Accueil RH</a>
+        <a href="/CandidaturesEnCours" class="nav-btn">Candidatures en traitement</a>
+        <a href="/CandidaturesSuivi" class="nav-btn">Suivi des Candidatures</a>
+        <a href="/Stockage" class="nav-btn">Stockage Candidatures</a>
+        <a href="/Compagnies" class="nav-link active">Consortium</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <h1>Sélectionnez les entreprises du consortium</h1>
+
+    <p>Vous pouvez choisir une ou plusieurs entreprises pour leur proposer cette candidature.</p>
+
+    <form th:action="@{/Compagnies/envoyer}" method="post">
+      <input type="hidden" name="candidatureId" th:value="${candidatureId}" />
+
+      <div th:if="${compagnies == null or compagnies.isEmpty()}" class="no-data">
+        Aucune entreprise disponible dans le consortium.
+      </div>
+
+      <ul th:if="${compagnies != null and !compagnies.isEmpty()}" class="liste-compagnies">
+        <li th:each="c, iterStat : ${compagnies}">
+          <label>
+            <input type="checkbox" name="selected" th:value="${iterStat.index}" />
+            <strong th:text="${c.nom}"></strong>
+            &nbsp;—&nbsp;<span th:text="${c.email}"></span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="btn-row">
+        <button type="submit" class="btn btn-traiter">Envoyer la candidature</button>
+        <a th:href="@{/Stockage}" class="btn btn-secondary">Annuler</a>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
